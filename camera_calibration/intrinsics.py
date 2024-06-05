@@ -42,7 +42,10 @@ def compute_intrinsics(
     image_size = None
     included_images = []
 
-    for i, image_path in enumerate(tqdm(images_path)):
+    pbar = tqdm(images_path)
+    pbar.set_description("Detecting ChArUco board in images")
+
+    for i, image_path in enumerate(pbar):
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
         if image_size is None:
@@ -66,6 +69,10 @@ def compute_intrinsics(
             warn(f"ChArUco board not found in image {image_path}. Skipping...")
 
     images_path = [images_path[i] for i in included_images]
+
+    print(
+        f"Computing camera intrinsics using {len(included_images)} images out of {len(images_path)} total images."
+    )
 
     while len(obj_points) > 0:
         try:
@@ -104,7 +111,6 @@ def compute_intrinsics(
             )
             return CameraIntrinsics(K, D, use_fisheye_model, image_size, rms)
         except cv2.error as err:
-            print(err)
             idx = int(
                 str(err).split()[-4]
             )  # Parse index of invalid image from error message

@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..utils import interactive_image_crop
+from .utils import interactive_image_crop
 
 
 def detect_classic_board(
