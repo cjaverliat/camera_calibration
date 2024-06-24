@@ -1,28 +1,13 @@
-import cv2
 import numpy as np
 
 
-def create_charuco_board(size: cv2.typing.Size, square_length: float, marker_length: float, dict: int, legacy: bool) -> cv2.aruco.CharucoBoard:
-    """
-    Create a ChArUco board.
+class Board:
+    def __init__(self, pattern_size: tuple[int, int], square_size: float):
+        self.pattern_size = pattern_size
+        self.square_size = square_size
 
-    :param size: The size of the board (large side then short side).
-    :param square_length: The length of a square on the board in meters.
-    :param marker_length: The length of a marker on the board in meters.
-    :param dict: The dictionary to use for the markers.
-    :param legacy: Whether to use the legacy pattern (for patterns created with opencv versions prior 4.6.0).
-    """
-    charuco_board = cv2.aruco.CharucoBoard(size, square_length, marker_length, cv2.aruco.getPredefinedDictionary(dict))
-    charuco_board.setLegacyPattern(legacy)
-    return charuco_board
-
-
-def get_board_corners_count(board: cv2.aruco.CharucoBoard) -> int:
-    """
-    Get the number of corners on the board.
-
-    :param board: The ChArUco board.
-    """
-    n_cols = board.getChessboardSize()[0]
-    n_rows = board.getChessboardSize()[1]
-    return (n_cols - 1) * (n_rows - 1)
+        self.points = np.zeros((pattern_size[0] * pattern_size[1], 3), np.float32)
+        self.points[:, :2] = np.mgrid[
+            0 : pattern_size[0], 0 : pattern_size[1]
+        ].T.reshape(-1, 2)
+        self.points *= square_size
