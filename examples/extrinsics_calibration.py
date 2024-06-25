@@ -12,7 +12,7 @@ def opencv_to_blender(position):
 
 
 def _read_img(img_name):
-    return cv2.imread(path.join(filepath, "data", "img", img_name))
+    return cv2.imread(path.join(filepath, "data", "extrinsics", img_name))
 
 
 def _create_pair(camera1, image1, camera2, image2):
