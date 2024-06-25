@@ -64,6 +64,8 @@ if __name__ == "__main__":
 
     for camera in cameras:
         # offset = np.array([0, -0.015 * 6, 0])
+        print(camera.w2c)
+
         camera_pos = np.linalg.inv(camera.w2c)[:3, 3]
         camera_pos = opencv_to_blender(camera_pos)  # + offset
         print(camera.name, camera_pos)
