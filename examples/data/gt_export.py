@@ -77,22 +77,28 @@ def get_camera_resolution(obj):
 def get_camera_extrinsics_matrix(obj):
     """
     Return the world to camera matrix for the given camera.
+
+    See https://blog.expertise.dev/2021-06-28-Transforming-coordinates-from-Blender-To-OpenCV/
     """
     if obj.type != "CAMERA":
         raise ValueError("Object is not a camera.")
 
-    BLENDER_TO_OPENCV = np.diag([1, -1, -1])
+    location, rotation = obj.matrix_world.decompose()[:2]
 
-    location, rotation = obj.matrix_world.decompose()[0:2]
-    R = rotation.to_matrix().transposed()
-    T = -1.0 * R @ location
+    # Rotation matrix to rotate 180° around x axis
+    M = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]])
 
-    R = BLENDER_TO_OPENCV @ R
-    T = BLENDER_TO_OPENCV @ T
+    R = M @ np.matrix(rotation.to_matrix()).T
 
-    R[:, [0, 1, 2]] = R[:, [1, 0, 2]]
+    R[:, [0, 1]] = R[:, [1, 0]]
     R[:, 2] = -R[:, 2]
-    return np.vstack([np.column_stack((R, T)), [0, 0, 0, 1]])
+
+    T = -np.matrix(rotation.to_matrix().transposed()) @ np.matrix(location).T
+    # Invert y and z
+    T[1:, :] = -T[1:, :]
+
+    w2c = np.vstack([np.column_stack((R, T)), [0, 0, 0, 1]])
+    return w2c
 
 
 def get_camera_distortions(obj):
@@ -119,15 +125,13 @@ def export_camera_ground_truth(obj, output_dir):
     np.savetxt(path.join(output_dir, "camera_intrinsics.txt"), intrinsics)
     np.savetxt(path.join(output_dir, "camera_extrinsics.txt"), extrinsics)
 
+    print(f"Exported camera ground truth to {output_dir}.")
+
 
 if __name__ == "__main__":
     for obj in bpy.data.objects:
         if obj.type == "CAMERA":
             camera_name = obj.name
-
-            if camera_name != "Camera_1":
-                continue
-
             output_dir = bpy.path.abspath("//")
-            output_dir = path.join(output_dir, camera_name)
+            output_dir = path.join(output_dir, camera_name.lower())
             export_camera_ground_truth(obj, output_dir)

@@ -1,7 +1,7 @@
 from camera_calibration.extrinsics import calibrate_cameras_extrinsics
 from camera_calibration.camera import Camera
 from camera_calibration.board import Board
-from camera_calibration.vis.camera_visualizer import show_cameras
+from camera_calibration.vis.visualizer import add_cameras
 from os import path
 import numpy as np
 import cv2
@@ -70,4 +70,4 @@ if __name__ == "__main__":
         camera_pos = opencv_to_blender(camera_pos)  # + offset
         print(camera.name, camera_pos)
 
-    show_cameras(cameras)
+    add_cameras(cameras)
